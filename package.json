@@ -1,6 +1,6 @@
 {
   "name": "bounce",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "private": true,
   "license": "MIT",
   "description": "An independent browser player for a user-provided Nokia Bounce 1.24 JAR; no game bundled",
