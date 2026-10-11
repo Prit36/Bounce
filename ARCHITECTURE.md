@@ -32,6 +32,15 @@ requirements. The VM loads its native APIs only when needed, keeping the
 original `classBucket` consumption order and handset patch behavior. The
 unchanged game JAR is decompressed with the bundled JavaScript inflater.
 
+## Appearance
+
+Page themes and handset covers have independent palettes in `src/style.css`.
+Theme tokens control page surfaces, text, actions, feedback, and backdrops.
+Cover tokens control the entire handset, including SVG outlines, trim,
+speakers, key labels, navigation, and pressed/focus states. Keep hardware
+colors in cover tokens so each cover works with every page theme and both
+control layouts. Display filters apply only over the original game screen.
+
 ## Validation
 
 Open `tests/index.html`. Tests cover SHA-256 reference vectors and padding
@@ -52,6 +61,9 @@ For end-to-end checks:
 5. Check a mobile viewport and a static hosted copy under a subdirectory.
 6. In DevTools, check for uncaught errors and external requests. Direct-file
    use should make zero HTTP requests.
+7. Check all four backgrounds with all four covers, both touch layouts, and
+   each display filter. Include desktop, narrow mobile, and landscape sizes;
+   check settings tabs, feedback, key labels, and keyboard focus in each theme.
 
 ## Storage and release boundaries
 
