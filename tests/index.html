@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bounce browser tests</title>
+  <style>
+    :root { font: 16px/1.5 system-ui, sans-serif; color-scheme: light dark; }
+    body { max-width: 800px; margin: 3rem auto; padding: 0 1.5rem; }
+    li { margin: .5rem 0; } .pass { color: #17934f; } .fail { color: #e35353; }
+    #summary { font-weight: bold; } code { overflow-wrap: anywhere; }
+  </style>
+  <script src="setup.js"></script>
+  <script src="../src/fonts.js"></script>
+  <script src="../src/sha256.js"></script>
+  <script src="../src/jar.js"></script>
+  <script src="../src/input.js"></script>
+  <script src="../src/audio.js"></script>
+  <script src="../src/platform.js"></script>
+  <script src="tests.js" defer></script>
+</head>
+<body>
+  <h1>Bounce browser tests</h1>
+  <p>Tests run locally with an in-memory save store. Your game saves and remembered JAR are untouched.</p>
+  <p id="summary" role="status">Running…</p>
+  <ol id="results"></ol>
+  <p>Optional: select your original JAR to check local verification with both hashing implementations.</p>
+  <input id="jar-fixture" type="file" accept=".jar">
+  <p id="jar-result" role="status"></p>
+  <p><a href="../index.html">Open player</a></p>
+</body>
+</html>

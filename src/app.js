@@ -563,9 +563,7 @@
     else jarDialog.removeAttribute('aria-busy');
   }
   async function launchGame(blob, name, remembered) {
-    const response = await fetch('fonts.json');
-    if (!response.ok) throw new Error('Could not load the player font. Try again.');
-    BouncePlatform.fonts = await response.json();
+    BouncePlatform.fonts = window.BounceFonts;
     gameJar = blob;
     document.getElementById('jar-name').textContent = name;
     document.getElementById('jar-persistence').textContent = remembered ? 'Remembered in this browser.' : 'Session only.';

@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#ffd64b">
   <meta name="description" content="An independent browser player for your own Nokia Bounce 1.24 JAR. Choose a local file to play; no game is bundled or uploaded.">
   <title>Bounce</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="preload" href="ui-fonts/Outfit.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="src/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="src/ui-fonts/Outfit.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="stylesheet" href="src/style.css">
   <script src="vendor/js2me/js/zip/zip.js"></script>
   <script src="vendor/js2me/js/zip/inflate.js"></script>
   <script src="vendor/js2me/js/zip/zip-ext.js"></script>
@@ -26,11 +26,13 @@
   <script src="vendor/js2me/js/resources.js"></script>
   <script src="vendor/js2me/js/threads.js"></script>
   <script src="vendor/js2me/js/utils.js"></script>
-  <script src="audio.js"></script>
-  <script src="platform.js"></script>
-  <script src="input.js"></script>
-  <script src="jar.js"></script>
-  <script src="app.js" defer></script>
+  <script src="src/fonts.js"></script>
+  <script src="src/audio.js"></script>
+  <script src="src/platform.js"></script>
+  <script src="src/input.js"></script>
+  <script src="src/sha256.js"></script>
+  <script src="src/jar.js"></script>
+  <script src="src/app.js" defer></script>
 </head>
 <body>
   <div class="app-shell" id="app">

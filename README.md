@@ -1,72 +1,94 @@
 # Bounce
 
-An independent browser player for a **user-provided Nokia Bounce 1.24 JAR**. The original Java bytecode runs in a bundled JS2ME runtime. No game, game artwork, levels, sounds, decompiled game code, or gameplay screenshots are included in the public release.
+A browser-only player for a **user-provided Nokia Bounce 1.24 JAR**. Open
+`index.html` in a modern browser, or double-click `PLAY-BOUNCE.cmd` on Windows.
+Choose **Choose JAR file** to start. No installation, build, package manager,
+Java installation, backend, CDN, or local server is needed.
 
-## Run locally
+The original Java bytecode runs locally in the bundled JavaScript JS2ME
+runtime. WASM is unnecessary. The player includes no game JAR, artwork,
+levels, sounds, decompiled game code, or gameplay screenshots.
 
-Install Node.js 22 or newer, then run:
+## Supported game
 
-```sh
-npm start
-```
-
-On Windows, you can also double-click `PLAY-BOUNCE.cmd` (or use `npm.cmd start`). Open [localhost:4173](http://localhost:4173) and click **Choose JAR file**. There are no npm dependencies to install, no Java installation requirement, and no external runtime CDN.
-
-Bring a copy you are authorized to use. This player supports one verified Nokia Bounce 1.24 release with this SHA-256:
+Bring a copy you are authorized to use. The supported Nokia Bounce 1.24
+release has this SHA-256:
 
 ```text
 77a24bf1de10ad8a1c440fc96aa1ed2e4b29f2102771f268eaa93ff910b55ee8
 ```
 
-File names may differ; the bytes must match. Other games, other versions, modified files, empty files, and files over 1 MB are rejected before the VM starts. Verification requires HTTPS or localhost; opening `index.html` directly is unsupported. No game download links are provided.
+File names may differ; the bytes must match. Other games, modified files,
+empty files, and files over 1 MB are rejected before the VM starts. File
+verification uses Web Crypto when available and a local JavaScript SHA-256
+implementation otherwise, so direct file URLs also work. No game download
+links are provided.
 
 ## Privacy and saves
 
-Your selected JAR is read with the browser File API and verified locally. **Remember on this device** is enabled by default: it stores the verified file in this browser's IndexedDB so refreshes, restarts, and later visits can load it again. The stored bytes are verified again before every launch. The file is never sent to a server or included in save backups.
+The browser reads and verifies your selected JAR locally. It is never uploaded.
+**Remember on this device** stores it in IndexedDB and verifies it again before
+every launch. Uncheck this option to play for the current session only.
+**Controls → Saves → About → Forget JAR** removes the remembered file and keeps
+your progress. If the browser prevents remembering the file, select it again
+after refreshing.
 
-Uncheck **Remember on this device** to play for the current session only. **Controls → Saves → About → Forget JAR** deletes the remembered file and returns to the picker, keeping your progress. Clearing site data also removes it. Browser storage is separate for each hostname and port; private browsing or storage restrictions may prevent remembering the file. If saving fails, play still works and the player tells you to select the JAR again after refreshing.
+Progress and preferences use localStorage. Export/import JSON backups from
+**Controls → Saves**. Browser storage depends on the browser profile and
+origin; file URL behavior varies by browser. Keep the player folder at the
+same path, and export a backup before moving it or switching from localhost
+to direct file use or a hosted URL. Private browsing and browser storage
+policies can limit persistence. There are no analytics or telemetry.
 
-The original game's RMS progress and player preferences are stored in localStorage for this browser and origin. Export/import JSON backups from **Controls → Saves**. A new hostname or port has separate saves. The interface does not contain analytics or telemetry.
-
-## Controls and features
+## Controls
 
 - Move: **Left / Right**, **A / D**, or **4 / 6**.
 - Jump: **Up**, **W**, **Space**, or **2**.
 - Select: **Enter** or the center button.
 - Menu/back: **Escape**, **X**, or a soft key.
-- Standard controllers: D-pad / left stick to move, A/Cross to jump, B to go back, Start for menu.
+- Controllers: D-pad / left stick to move, A/Cross to jump, B to go back, Start for menu.
 - Touch: classic phone keypad or two-thumb arcade controls.
 
-The player includes themes, faceplates, display filters, integer pixel scaling, fullscreen, volume, optional keypad tones and haptics, save backups, and the game's original optional cheat codes. Settings pause play. Keyboard and controller input are blocked while choosing a JAR or editing settings.
+Themes, faceplates, display filters, integer pixel scaling, fullscreen,
+volume, optional keypad tones and haptics, save backups, and original cheat
+codes are available in Controls. Settings pause play and block game input.
 
-The original game canvas remains 128 × 128, with its original artwork, HUD, level data, game logic, and sounds supplied by the selected JAR. The game's timer requests 25 ticks per second; browser scheduling can vary. Handset/system text uses Přemysl Eric Janouch's Nokia 3310 font reconstruction, with the permissive notice from its source headers retained. The glyph data matches the earlier player. Original phone firmware, display hardware, and speaker output are emulated, so this is not a hardware-identical reproduction.
+The game canvas stays 128 × 128. The selected JAR supplies the original
+artwork, HUD, levels, game logic, and sounds. Handset text uses Přemysl Eric
+Janouch's Nokia 3310 font reconstruction. Browser timing and emulated phone
+hardware can differ from an original handset.
 
-After the JAR loads, its original icon becomes the browser tab icon. The image is read locally from the JAR and is not included in the public source or static build.
+## Edit and test
 
-## Develop and test
+Edit the HTML, CSS, or JavaScript and refresh the browser. There is no build
+step or generated application directory.
 
-```sh
-npm run build
-npm test
-npm run release:prepare
-```
+- `index.html`: the only player entry point.
+- `src/`: interface, input, audio, local verification, glyphs, and handset compatibility.
+- `vendor/`: browser runtime and licensed font reference sources.
+- `tests/index.html`: browser test runner with isolated in-memory save storage.
 
-- `src/`: wrapper interface, input, audio decoding, and handset compatibility code.
-- `vendor/`: redistributable runtime and licensed handset font source, with notices.
-- `dist/`: generated static player, containing **no game files**. Serve this directory over localhost or HTTPS.
-- `release/github-source/`: audited source export for a **fresh** public repository, without this checkout's Git history.
-- `release/manifest.json`: list of exported files for review.
+Open `tests/index.html` to run the tests. Optionally select your JAR there to
+check verification and byte preservation; the test page does not store or
+upload it. See [ARCHITECTURE.md](ARCHITECTURE.md) for the browser architecture
+and manual gameplay checks.
 
-The build clears stale output before copying the player, so an old bundled JAR cannot remain in `dist/`. The release command builds, tests, and audits exported files. CI performs the same checks without a game. Optional private preservation tests run only when a local JAR is available (`BOUNCE_TEST_JAR` can point to one); the fixture is never included in an export.
+## Static hosting
 
-## Release packaging
+Upload `index.html`, `src/`, `vendor/`, `LICENSE`, and `THIRD_PARTY_NOTICES.md`
+to any static host. Relative URLs support hosting under a subdirectory. Serve
+`.js` as JavaScript and `.css` as CSS. All computation and storage run in the
+browser; the host only delivers files.
 
-**Read [RELEASING.md](RELEASING.md) first.** This public repository starts from an audited source export with fresh Git history. The original development checkout contained game files; its history was excluded. Keep game files and private analysis out of commits and release assets. `.gitignore` and deleting files from the latest commit do not remove earlier copies from Git history.
-
-No remote repository, deployment, or hosting credentials are created by these commands. The included GitHub workflow validates the build only; it does not deploy.
+For offline use, keep the whole player folder together and open its
+`index.html`. A hosted URL needs access to its static files; there is no
+service worker. Read [RELEASING.md](RELEASING.md) before distributing files.
 
 ## License and rights
 
-Wrapper code: [MIT](LICENSE). Third-party runtime and font terms: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Wrapper code: [MIT](LICENSE). Third-party runtime and font terms:
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-Nokia Bounce and its game content belong to their respective rights holders. The wrapper license grants no rights to the game. This project is independent of, and is not affiliated with or endorsed by, Nokia. Requiring a user-provided JAR reduces distributed game content; it does not guarantee immunity from copyright or trademark claims. GitHub describes its process in its [DMCA Takedown Policy](https://docs.github.com/en/site-policy/content-removal-policies/dmca-takedown-policy).
+Nokia Bounce and its game content belong to their respective rights holders.
+The wrapper license grants no rights to the game. This project is independent
+of, and is not affiliated with or endorsed by, Nokia.

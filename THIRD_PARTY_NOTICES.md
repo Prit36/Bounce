@@ -20,7 +20,7 @@ The wrapper code is licensed under MIT; see `LICENSE`. Third-party components re
 
 - Project: https://github.com/Outfitio/Outfit-Fonts
 - Copyright: The Outfit Project Authors, as stated in `src/ui-fonts/OFL.txt`.
-- License: SIL Open Font License 1.1, reproduced in `src/ui-fonts/OFL.txt` (also `ui-fonts/OFL.txt` in the static build).
+- License: SIL Open Font License 1.1, reproduced in `src/ui-fonts/OFL.txt`.
 - Used for the surrounding player interface.
 
 ## Nokia 3310 font reconstruction
@@ -28,7 +28,7 @@ The wrapper code is licensed under MIT; see `LICENSE`. Third-party components re
 - Project: https://github.com/pjanx/nokia-3310-fonts
 - Copyright (c) 2013, Přemysl Eric Janouch <p@janouch.name>.
 - License: the source headers explicitly permit use, copying, modification, and distribution for any purpose, with or without fee. The full notice and warranty disclaimer are reproduced in `vendor/nokia-font/LICENSE.txt` and retained in `nokia-fonts.c` and `nokia-fonts.h`.
-- Converted by `scripts/fonts.mjs` for emulated handset text, preserving the earlier player's glyph data. The author reconstructed the glyphs by observing a handset; these files are not Nokia firmware or game assets.
+- The browser-ready glyph data is in `src/fonts.js`, preserving the earlier player's glyph rows, advances, and line spacing. The author reconstructed the glyphs by observing a handset; these files are not Nokia firmware or game assets.
 
 ## User-supplied game
 

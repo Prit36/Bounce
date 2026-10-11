@@ -42,10 +42,12 @@
     async validate(file) {
       if (!file || !/\.jar$/i.test(file.name || '')) throw new Error('Choose a .jar file from your device.');
       if (file.size <= 0 || file.size > MAX_BYTES) throw new Error('Choose a non-empty JAR smaller than 1 MB.');
-      if (!globalThis.crypto?.subtle) throw new Error('File verification needs HTTPS or localhost. Open the player using a local server.');
       const bytes = await file.arrayBuffer();
-      const digest = await crypto.subtle.digest('SHA-256', bytes);
-      const hash = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+      let hash;
+      if (globalThis.crypto?.subtle) {
+        const digest = await crypto.subtle.digest('SHA-256', bytes);
+        hash = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+      } else hash = window.BounceSHA256(bytes);
       if (hash !== SHA256) throw new Error('This JAR is not the supported Nokia Bounce 1.24 file. Choose your matching original copy.');
       // Launch the exact bytes that were verified, even if a local file changes.
       return new Blob([bytes], { type: 'application/java-archive' });

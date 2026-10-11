@@ -1,9 +1,5 @@
-tools/
-node_modules/
 .private/
 analysis/
-dist/
-coverage/
 *.jar
 *.jad
 *.class
@@ -17,7 +13,6 @@ Thumbs.db
 *.tar.gz
 *.zip
 .openai/
-release/
 analysis/*-reference.java
 analysis/font-repository.json
 analysis/nokia-*.bdf

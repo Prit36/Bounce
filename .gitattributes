@@ -7,8 +7,4 @@
 analysis export-ignore
 .private export-ignore
 .openai export-ignore
-tools export-ignore
-dist export-ignore
-release export-ignore
 AGENTS.md export-ignore
-scripts/capture.mjs export-ignore
