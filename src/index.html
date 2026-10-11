@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffd64b">
+  <meta name="description" content="An independent browser player for your own Nokia Bounce 1.24 JAR. Choose a local file to play; no game is bundled or uploaded.">
+  <title>Bounce</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="ui-fonts/Outfit.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="stylesheet" href="style.css">
+  <script src="vendor/js2me/js/zip/zip.js"></script>
+  <script src="vendor/js2me/js/zip/inflate.js"></script>
+  <script src="vendor/js2me/js/zip/zip-ext.js"></script>
+  <script src="vendor/js2me/js/js2me.js"></script>
+  <script src="vendor/js2me/js/bufferStream.js"></script>
+  <script src="vendor/js2me/js/convert.js"></script>
+  <script src="vendor/js2me/js/classes.js"></script>
+  <script src="vendor/js2me/js/execute.js"></script>
+  <script src="vendor/js2me/js/events.js"></script>
+  <script src="vendor/js2me/js/manifest.js"></script>
+  <script src="vendor/js2me/js/methodStub.js"></script>
+  <script src="vendor/js2me/js/launcher.js"></script>
+  <script src="vendor/js2me/js/loader.js"></script>
+  <script src="vendor/js2me/js/numbers.js"></script>
+  <script src="vendor/js2me/js/resources.js"></script>
+  <script src="vendor/js2me/js/threads.js"></script>
+  <script src="vendor/js2me/js/utils.js"></script>
+  <script src="audio.js"></script>
+  <script src="platform.js"></script>
+  <script src="input.js"></script>
+  <script src="jar.js"></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell" id="app">
+    <div class="arcade-art" aria-hidden="true"><i class="arcade-ring"></i><svg class="arcade-steps" viewBox="0 0 260 260"><path d="M12 228h68v-68h68V92h68V24h32v224H12Z"/></svg></div>
+    <header class="masthead">
+      <div class="identity"><h1 class="wordmark"><span class="ball-mark" aria-hidden="true"></span>bounce</h1></div>
+      <nav class="toolbar" aria-label="Player settings">
+        <button class="tool-button" id="sound" aria-label="Sound on" aria-pressed="true" title="Sound on">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="sound-waves" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/><path class="sound-muted" d="m16 9 6 6m0-6-6 6"/></svg><span>Sound</span>
+        </button>
+        <button class="tool-button" id="fullscreen" aria-label="Enter fullscreen" title="Enter fullscreen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="expand-icon" d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/><path class="collapse-icon" d="M3 8h5V3m8 0v5h5M8 21v-5H3m18 0h-5v5"/></svg><span>Fullscreen</span>
+        </button>
+        <button class="tool-button" id="theme-toggle" aria-label="Toggle dark theme" title="Toggle dark theme">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle class="sun-icon" cx="12" cy="12" r="4"/>
+            <path class="sun-icon" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41m14.14-14.14l-1.41 1.41"/>
+            <path class="moon-icon" d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-5.4-5.4c0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1Z"/>
+          </svg><span>Theme</span>
+        </button>
+        <span class="toolbar-divider" aria-hidden="true"></span>
+        <button class="tool-button" id="help" aria-label="Controls and settings" aria-haspopup="dialog" title="Controls and settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h5m4 0h7M4 17h9m4 0h3"/><circle cx="11" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg><span>Controls</span>
+        </button>
+      </nav>
+    </header>
+
+    <main class="stage" id="stage" aria-label="Nokia Bounce game player">
+      <div class="phone" id="phone" data-layout="portrait" data-density="regular">
+        <svg class="phone-case" viewBox="0 0 360 720" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="case-edge" x1="0" y1="0" x2="1" y2=".3">
+              <stop stop-color="var(--c-edge-1, #7666eb)"/>
+              <stop offset=".035" stop-color="var(--c-edge-2, #373078)"/>
+              <stop offset=".15" stop-color="var(--c-edge-3, #211d55)"/>
+              <stop offset=".6" stop-color="var(--c-edge-4, #302a67)"/>
+              <stop offset=".95" stop-color="var(--c-edge-5, #191741)"/>
+              <stop offset="1" stop-color="var(--c-edge-6, #7060d5)"/>
+            </linearGradient>
+            <linearGradient id="case-face" x1="0" y1="0" x2="1" y2=".7">
+              <stop stop-color="var(--c-face-1, #8274ff)"/>
+              <stop offset=".08" stop-color="var(--c-face-2, #6654ee)"/>
+              <stop offset=".45" stop-color="var(--c-face-3, #513ddd)"/>
+              <stop offset=".85" stop-color="var(--c-face-4, #422ec5)"/>
+              <stop offset="1" stop-color="var(--c-face-5, #2b1e94)"/>
+            </linearGradient>
+            <linearGradient id="case-sheen" x1="0" y1="0" x2=".8" y2="1">
+              <stop stop-color="var(--c-sheen-1, #e9dfff)" stop-opacity=".3"/>
+              <stop offset=".45" stop-color="#fff" stop-opacity="0"/>
+              <stop offset="1" stop-color="var(--c-sheen-2, #21144e)" stop-opacity=".15"/>
+            </linearGradient>
+          </defs>
+          <g class="case-regular">
+          <path d="M80 2H280Q332 2 353 48Q360 100 358 350L354 615Q350 682 312 709Q180 726 48 709Q10 682 6 615L2 350Q0 100 7 48Q28 2 80 2Z" fill="url(#case-edge)" stroke="#191741" stroke-width="2"/>
+          <path class="case-face" d="M81 9H279Q326 9 345 51Q353 100 350 350L346 613Q342 678 308 701Q180 718 52 701Q18 678 14 613L10 350Q7 100 15 51Q34 9 81 9Z" fill="url(#case-face)" stroke="#a59bff" stroke-opacity=".6" stroke-width="1.2"/>
+          <path d="M81 12H279Q324 12 342 52Q350 100 347 350L343 612Q339 676 307 698Q180 715 53 698Q21 676 17 612L13 350Q10 100 18 52Q36 12 81 12Z" fill="url(#case-sheen)"/>
+          <path d="M30 62Q38 19 83 19H277" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.2"/>
+          <path d="M20 605Q27 676 58 693Q180 714 302 693" fill="none" stroke="#211858" stroke-opacity=".6" stroke-width="2"/>
+          </g>
+          <g class="case-compact">
+          <path d="M60 2H300Q350 2 356 48L356 350L352 615Q348 682 312 709Q180 726 48 709Q12 682 8 615L4 350L4 48Q10 2 60 2Z" fill="url(#case-edge)" stroke="#191741" stroke-width="2"/>
+          <path class="case-face" d="M61 9H299Q344 9 350 48L348 350L344 613Q340 678 308 701Q180 718 52 701Q20 678 16 613L12 350L10 48Q16 9 61 9Z" fill="url(#case-face)" stroke="#a59bff" stroke-opacity=".6" stroke-width="1.2"/>
+          <path d="M61 12H299Q341 12 347 49L345 350L341 612Q337 676 307 698Q180 715 53 698Q23 676 19 612L15 350L13 49Q19 12 61 12Z" fill="url(#case-sheen)"/>
+          <path d="M20 49Q25 19 65 19H295" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.2"/>
+          <path d="M20 605Q27 676 58 693Q180 714 302 693" fill="none" stroke="#211858" stroke-opacity=".6" stroke-width="2"/>
+          </g>
+        </svg>
+        <i class="side-key" aria-hidden="true"></i>
+        <div class="phone-top" aria-hidden="true"><div class="speaker"></div><div class="phone-brand">NOKIA</div></div>
+        <div class="bezel">
+          <div class="screen-filter" id="screen-filter" aria-hidden="true"></div>
+          <div class="pause-badge" id="pause-badge" aria-hidden="true">PAUSED</div>
+          <div id="screen" tabindex="0" role="application" aria-label="Bounce screen. Arrow keys to move and jump. Enter to select. Escape for menu."><div class="loading"><span class="loading-ball"></span>Choose your JAR to play</div></div>
+        </div>
+        <div class="hardware">
+          <div class="control-deck">
+            <button class="soft-key" id="choice" data-key="-6" aria-label="Left soft key">Select</button>
+            <div class="navigation" aria-label="Directional controls">
+              <button class="nav-key up" data-key="-1" aria-label="Jump / Up"><svg viewBox="0 0 12 8" aria-hidden="true"><path d="m2 6 4-4 4 4"/></svg></button>
+              <button class="nav-key left" data-key="-3" aria-label="Move left"><svg viewBox="0 0 8 12" aria-hidden="true"><path d="m6 2-4 4 4 4"/></svg></button>
+              <button class="nav-key select" data-key="-5" aria-label="Select"><span aria-hidden="true"></span></button>
+              <button class="nav-key right" data-key="-4" aria-label="Move right"><svg viewBox="0 0 8 12" aria-hidden="true"><path d="m2 2 4 4-4 4"/></svg></button>
+              <button class="nav-key down" data-key="-2" aria-label="Down"><svg viewBox="0 0 12 8" aria-hidden="true"><path d="m2 2 4 4 4-4"/></svg></button>
+            </div>
+            <button class="soft-key" id="back" data-key="-7" aria-label="Right soft key">Back</button>
+          </div>
+          <div class="numpad" aria-label="Phone keypad">
+            <button data-key="49" aria-label="1"><b>1</b><small>· ·</small></button><button data-key="50" aria-label="2 / Jump"><b>2</b><small>abc</small></button><button data-key="51" aria-label="3"><b>3</b><small>def</small></button>
+            <button data-key="52" aria-label="4 / Move left"><b>4</b><small>ghi</small></button><button data-key="53" aria-label="5"><b>5</b><small>jkl</small></button><button data-key="54" aria-label="6 / Move right"><b>6</b><small>mno</small></button>
+            <button data-key="55" aria-label="7"><b>7</b><small>pqrs</small></button><button data-key="56" aria-label="8 / Down"><b>8</b><small>tuv</small></button><button data-key="57" aria-label="9"><b>9</b><small>wxyz</small></button>
+            <button data-key="42" aria-label="Star"><b>∗</b><small>+</small></button><button data-key="48" aria-label="0"><b>0</b><small>⌴</small></button><button data-key="35" aria-label="Hash"><b>#</b><small>⇧</small></button>
+          </div>
+          <div class="arcade-deck" id="arcade-deck" aria-label="Thumb arcade touch controls">
+            <div class="arcade-row row-main">
+              <button class="arcade-btn dpad-left" data-key="-3" aria-label="Move left">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+                <span class="btn-lbl">LEFT</span>
+              </button>
+              <button class="arcade-btn dpad-down" data-key="-2" aria-label="Down">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                <span class="btn-lbl">DOWN</span>
+              </button>
+              <button class="arcade-btn dpad-right" data-key="-4" aria-label="Move right">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+                <span class="btn-lbl">RIGHT</span>
+              </button>
+              <button class="arcade-btn action-jump" data-key="-1" aria-label="Jump">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg>
+                <span class="btn-lbl">JUMP</span>
+              </button>
+            </div>
+            <div class="arcade-row row-meta">
+              <button class="arcade-meta-btn" id="arcade-choice" data-key="-6" aria-label="Select / Menu">Select</button>
+              <button class="arcade-meta-btn switch-layout-btn" id="switch-layout-btn" aria-label="Switch to keypad layout" title="Switch to keypad">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 8h.01M12 8h.01M17 8h.01M7 12h.01M12 12h.01M17 12h.01M7 16h.01M12 16h.01M17 16h.01"/></svg>
+                <span>Keypad</span>
+              </button>
+              <button class="arcade-meta-btn" id="arcade-back" data-key="-7" aria-label="Back / Pause">Menu</button>
+            </div>
+          </div>
+          <div class="chin" aria-hidden="true"><i></i></div>
+        </div>
+      </div>
+      <p class="status" id="status" role="status"></p>
+    </main>
+
+    <footer class="shortcut-bar" aria-label="Keyboard controls">
+      <span><kbd>←</kbd><kbd>→</kbd> Move</span><span><kbd>↑</kbd><kbd class="wide-key">Space</kbd> Jump</span><span><kbd>Enter</kbd> Select</span><span><kbd>Esc</kbd> Menu</span>
+    </footer>
+
+    <dialog class="settings-dialog" id="settings" aria-labelledby="settings-title">
+      <div class="dialog-heading">
+        <h2 id="settings-title">Settings</h2>
+        <button class="icon-button" id="close-settings" aria-label="Close settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+        </button>
+      </div>
+
+      <div class="settings-tabs" role="tablist" aria-label="Settings sections">
+        <button type="button" role="tab" id="tab-controls" aria-controls="panel-controls" aria-selected="true">Controls</button>
+        <button type="button" role="tab" id="tab-display" aria-controls="panel-display" aria-selected="false" tabindex="-1">Display</button>
+        <button type="button" role="tab" id="tab-audio" aria-controls="panel-audio" aria-selected="false" tabindex="-1">Audio</button>
+        <button type="button" role="tab" id="tab-saves" aria-controls="panel-saves" aria-selected="false" tabindex="-1">Saves</button>
+      </div>
+      <div class="dialog-body">
+        <section class="settings-panel" id="panel-controls" role="tabpanel" aria-labelledby="tab-controls" tabindex="0">
+        <fieldset class="settings-section">
+          <legend>Keyboard</legend>
+          <dl class="control-list">
+            <div><dt>Move</dt><dd><kbd>←</kbd><kbd>→</kbd><span>or</span><kbd>A</kbd><kbd>D</kbd></dd></div>
+            <div><dt>Jump</dt><dd><kbd>↑</kbd><span>or</span><kbd>Space</kbd></dd></div>
+            <div><dt>Select</dt><dd><kbd>Enter</kbd></dd></div>
+            <div><dt>Menu / pause</dt><dd><kbd>Esc</kbd></dd></div>
+          </dl>
+          <div class="setting-row">
+            <span class="setting-name">Gamepad</span>
+            <span class="status-pill" id="gamepad-status">Disconnected</span>
+          </div>
+          <div class="setting-row">
+            <label for="control-layout-select">Touch layout</label>
+            <select id="control-layout-select">
+              <option value="keypad">Phone keypad</option>
+              <option value="arcade">Arcade</option>
+            </select>
+          </div>
+          <div class="setting-row toggle-row">
+            <label for="haptics-checkbox">Vibration</label>
+            <input type="checkbox" id="haptics-checkbox" checked>
+          </div>
+          <p class="section-desc controller-hint">Controller: D-pad / stick to move, A / Cross to jump or select, Start for menu.</p>
+        </fieldset>
+        <details class="cheats-details">
+          <summary>Cheat codes</summary>
+          <p class="section-desc">Start a level to use a code.</p>
+          <div class="cheats-container">
+            <div class="cheat-item">
+              <button type="button" class="cheat-btn" id="cheat-invincible" data-code="787898">
+                <code>787898</code><span>Invincibility</span>
+              </button>
+            </div>
+            <div class="cheat-item">
+              <button type="button" class="cheat-btn" id="cheat-warp" data-code="787899">
+                <code>787899</code><span>Warp & moon jump</span>
+              </button>
+              <small><b>1</b> previous level · <b>3</b> next level · <b>#</b> moon jump</small>
+            </div>
+          </div>
+        </details>
+        </section>
+        <section class="settings-panel" id="panel-display" role="tabpanel" aria-labelledby="tab-display" tabindex="0" hidden>
+        <fieldset class="settings-section">
+          <legend>Appearance</legend>
+          <div class="setting-row">
+            <label for="theme-select">Background</label>
+            <select id="theme-select">
+              <option value="arcade">Yellow</option>
+              <option value="dark">Dark</option>
+              <option value="navy">Navy</option>
+              <option value="cyber">Green</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <label for="cover-select">Handset cover</label>
+            <select id="cover-select">
+              <option value="violet">Violet</option>
+              <option value="navy">Navy</option>
+              <option value="cyber">Black</option>
+              <option value="coral">Coral</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <label for="scale">Screen size</label>
+            <select id="scale">
+              <option value="auto">Auto</option>
+              <option value="1">1×</option>
+              <option value="2">2×</option>
+              <option value="3">3×</option>
+              <option value="4">4×</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <label for="screen-filter-select">Screen filter</label>
+            <select id="screen-filter-select">
+              <option value="crisp">Pixels</option>
+              <option value="lcd">LCD</option>
+              <option value="scanlines">Scanlines</option>
+            </select>
+          </div>
+        </fieldset>
+        <p class="panel-note"><span id="display-size">128 × 128</span></p>
+        </section>
+        <section class="settings-panel" id="panel-audio" role="tabpanel" aria-labelledby="tab-audio" tabindex="0" hidden>
+        <fieldset class="settings-section">
+          <legend>Sound</legend>
+          <div class="setting-row toggle-row">
+            <label for="sound-checkbox">Game sound</label>
+            <input type="checkbox" id="sound-checkbox" checked>
+          </div>
+          <div class="setting-row slider-container">
+            <div class="slider-header">
+              <label for="volume-range">Master volume</label>
+              <span id="volume-val">100%</span>
+            </div>
+            <input type="range" id="volume-range" min="0" max="100" value="100" aria-label="Master volume">
+          </div>
+          <div class="setting-row toggle-row">
+            <label for="keytones-checkbox">Keypad tones</label>
+            <input type="checkbox" id="keytones-checkbox">
+          </div>
+        </fieldset>
+        </section>
+        <section class="settings-panel" id="panel-saves" role="tabpanel" aria-labelledby="tab-saves" tabindex="0" hidden>
+        <div class="save-summary"><span class="save-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h12l4 4v14H3V3Z"/><path d="M7 3v6h10V3M7 21v-8h10v8"/></svg></span><div><strong>Saved progress</strong><p id="save-status">Saves automatically during play</p></div></div>
+        <fieldset class="settings-section">
+          <legend>Backup</legend>
+          <p class="section-desc">Importing replaces progress and settings.</p>
+          <div class="button-row">
+            <button type="button" class="btn-sub" id="export-save-btn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              <span>Export save</span>
+            </button>
+            <button type="button" class="btn-sub file-btn" id="import-save-btn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+              <span>Import save</span>
+            </button>
+            <input type="file" id="import-save-input" accept=".json,application/json" hidden>
+          </div>
+          <button type="button" class="btn-danger" id="reset-save-btn">Reset game progress</button>
+        </fieldset>
+
+        <details class="about">
+          <summary>About<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></summary>
+          <div>
+            <p>JAR: <span id="jar-name">None selected</span><br><span id="jar-persistence"></span></p>
+            <p>Independent player. Not affiliated with Nokia.</p>
+            <div class="about-links">
+              <button type="button" id="change-jar">Forget JAR</button>
+              <a href="vendor/js2me/LICENSE">Runtime license</a>
+              <a href="THIRD_PARTY_NOTICES.md">Third-party notices</a>
+            </div>
+          </div>
+        </details>
+
+        <button class="restart-button" id="restart">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5v6h6M3.5 11a8.5 8.5 0 1 1 1 6"/></svg>Restart player
+        </button>
+        </section>
+      </div>
+      <div class="dialog-footer">
+        <p id="settings-feedback" class="settings-feedback" role="status" aria-live="polite" hidden></p>
+        <button type="button" class="return-button" id="return-to-game">Back to player</button>
+      </div>
+    </dialog>
+    <dialog id="jar-dialog" class="jar-dialog" aria-labelledby="jar-title" aria-describedby="jar-description">
+      <h2 id="jar-title">Load game</h2>
+      <p id="jar-description">Select your Nokia Bounce 1.24 JAR.</p>
+      <button type="button" id="jar-choose" class="jar-choose" autofocus>Choose JAR file</button>
+      <input type="file" id="jar-input" accept=".jar,application/java-archive,application/x-java-archive" hidden>
+      <label class="jar-remember"><input type="checkbox" id="jar-remember" checked>Remember on this device</label>
+      <p id="jar-feedback" class="jar-feedback" role="status" aria-live="polite" hidden></p>
+      <p class="jar-privacy">Read locally. Never uploaded.</p>
+      <details class="jar-details"><summary>File details</summary><p>Use a copy you are authorized to use. Only the release with this SHA-256 is supported:</p><code>77a24bf1de10ad8a1c440fc96aa1ed2e4b29f2102771f268eaa93ff910b55ee8</code></details>
+    </dialog>
+    <noscript><p class="noscript-notice">Enable JavaScript to choose your local JAR and run the player.</p></noscript>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <div id="alert" hidden role="alert"><p class="message"></p><button onclick="location.reload()">Reload player</button></div>
+  </div>
+  <div id="title" hidden></div>
+</body>
+</html>

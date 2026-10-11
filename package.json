@@ -1,0 +1,14 @@
+{
+  "name": "bounce",
+  "version": "2.0.0",
+  "private": true,
+  "license": "MIT",
+  "description": "An independent browser player for a user-provided Nokia Bounce 1.24 JAR; no game bundled",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node scripts/build.mjs && node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "release:prepare": "node scripts/build.mjs && node --test tests/*.test.mjs && node scripts/release.mjs"
+  }
+}
