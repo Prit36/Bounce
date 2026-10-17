@@ -65,20 +65,22 @@
     progress.splice(-8, 8, 255, 255, 255, 255, 222, 173, 190, 239);
     return { version: 1, app: 'original-nokia-bounce', data: {
       [prefix]: '0', [prefix + 'size']: '3', [prefix + '1']: '3', [prefix + '2']: '0,0,3,20', [prefix + '3']: progress.join(','),
-      'bounce:theme': 'navy', 'bounce:volume': '0.5'
+      'bounce:theme': 'navy', 'bounce:volume': '0.5', 'bounce:last-backup': '1790000000000'
     } };
   }
   await test('Save import/export preserves progress and unrelated data', () => {
     testRecords.clear(); testRecords.set('unrelated', 'keep'); testRecords.set(prefix + '99', 'stale');
     assert(BouncePlatform.importSave(backup()), BouncePlatform.importError);
     equal(localStorage.getItem('unrelated'), 'keep'); equal(localStorage.getItem(prefix + '99'), null);
+    equal(localStorage.getItem('bounce:last-backup'), '1790000000000');
     equal(JSON.parse(BouncePlatform.exportSave()).data[prefix + '1'], '3');
     BouncePlatform.resetSave(); equal(localStorage.getItem(prefix + '1'), null); equal(localStorage.getItem('bounce:theme'), 'navy');
   });
   await test('Corrupt and partial save backups leave storage unchanged', () => {
     for (const corrupt of [
       b => { b.app = 'other'; }, b => { b.version = 2; }, b => { delete b.data[prefix + '2']; },
-      b => { b.data[prefix + '3'] = '1,2,3'; }, b => { b.data['bounce:volume'] = 'NaN'; }, b => { b.data.unrelated = 'overwrite'; }
+      b => { b.data[prefix + '3'] = '1,2,3'; }, b => { b.data['bounce:volume'] = 'NaN'; }, b => { b.data.unrelated = 'overwrite'; },
+      b => { b.data['bounce:last-backup'] = 'yesterday'; }
     ]) {
       const data = backup(); corrupt(data); const before = [...testRecords];
       equal(BouncePlatform.importSave(data), false); equal([...testRecords], before);

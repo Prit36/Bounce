@@ -344,6 +344,7 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 .tool-button span { display: none; }
 .tool-button:hover, .icon-button:hover { color: var(--accent); background: var(--line); }
 .tool-button:active, .icon-button:active { background: var(--line-strong); }
+.tool-button:disabled { opacity: .35; cursor: default; background: transparent; color: var(--ink); }
 #sound[aria-pressed="false"] { color: var(--accent); opacity: .8; }
 .toolbar-divider { width: 1px; height: 17px; background: var(--line); margin: 0 4px; }
 .sound-muted, .collapse-icon, .moon-icon { display: none; }
@@ -687,6 +688,9 @@ input[type="range"] {
 .save-summary > div { min-width: 0; flex: 1; }
 .save-summary strong { font-size: 14px; font-weight: 650; }
 .save-summary p { margin: 4px 0 0; font-size: 11px; color: var(--muted); }
+.save-summary .backup-status { margin-top: 2px; }
+.backup-status[data-stale="true"] { color: var(--ink); font-weight: 650; }
+.backup-status[data-stale="true"]::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: var(--accent); vertical-align: 1px; }
 .save-icon { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 11px; background: var(--card-bg); color: var(--accent); border: 1px solid var(--line); flex-shrink: 0; }
 .dialog-footer { flex-shrink: 0; padding: 14px 20px 16px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: var(--dialog-bg); }
 .return-button { min-height: 40px; padding: 9px 18px; background: var(--ink); color: var(--dialog-bg); border: 1px solid var(--toolbar-border); border-radius: 10px; font-size: 12px; font-weight: 700; box-shadow: 0 3px 0 var(--line-strong); }
@@ -721,6 +725,8 @@ input[type="range"] {
 .jar-dialog p { font-size: 13px; line-height: 1.6; }
 .jar-choose { display: block; width: 100%; min-height: 48px; margin-top: 22px; padding: 12px 18px; border: 2px solid var(--toolbar-border); border-radius: 12px; background: var(--ink); color: var(--dialog-bg); font-weight: 700; box-shadow: 0 3px 0 var(--line-strong); }
 .jar-choose:disabled { opacity: .6; cursor: wait; }
+.jar-drop-hint { display: none; }
+.jar-dialog.is-dragging .jar-drop-hint { display: grid; place-items: center; position: absolute; inset: 10px; margin: 0; border: 2px dashed var(--accent); border-radius: 14px; background: var(--dialog-bg); color: var(--ink); font-size: 18px; font-weight: 800; pointer-events: none; }
 .jar-remember { display: flex; align-items: center; gap: 8px; margin-top: 18px; font-size: 13px; cursor: pointer; }
 .jar-remember input { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); }
 .jar-feedback { color: var(--muted); overflow-wrap: anywhere; }
@@ -874,6 +880,8 @@ kbd {
 @media (max-width: 360px) {
   .masthead { padding-inline: 12px; gap: 8px; }
   .wordmark { font-size: 21px; gap: 6px; }
+  .tool-button { width: 33px; height: 33px; }
+  .toolbar-divider { margin: 0 1px; }
   .arcade-btn .btn-lbl { display: none; }
   .arcade-btn svg { width: calc(22 * var(--u)); height: calc(22 * var(--u)); }
   .arcade-meta-btn span { display: none; }

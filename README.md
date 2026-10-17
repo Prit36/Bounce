@@ -2,8 +2,9 @@
 
 A browser-only player for a **user-provided Nokia Bounce 1.24 JAR**. Open
 `index.html` in a modern browser, or double-click `PLAY-BOUNCE.cmd` on Windows.
-Choose **Choose JAR file** to start. No installation, build, package manager,
-Java installation, backend, CDN, or local server is needed.
+Choose **Choose JAR file**, or drop the JAR onto the dialog, to start. No
+installation, build, package manager, Java installation, backend, CDN, or
+local server is needed.
 
 The original Java bytecode runs locally in the bundled JavaScript JS2ME
 runtime. WASM is unnecessary. The player includes no game JAR, artwork,
@@ -34,8 +35,8 @@ your progress. If the browser prevents remembering the file, select it again
 after refreshing.
 
 Progress and preferences use localStorage. Export/import JSON backups from
-**Controls → Saves**. Browser storage depends on the browser profile and
-origin; file URL behavior varies by browser. Keep the player folder at the
+**Controls → Saves**, which also shows when you last exported one. Browser
+storage depends on the browser profile and origin; file URL behavior varies by browser. Keep the player folder at the
 same path, and export a backup before moving it or switching from localhost
 to direct file use or a hosted URL. Private browsing and browser storage
 policies can limit persistence. There are no analytics or telemetry.
@@ -44,8 +45,10 @@ policies can limit persistence. There are no analytics or telemetry.
 
 - Move: **Left / Right**, **A / D**, or **4 / 6**.
 - Jump: **Up**, **W**, **Space**, or **2**.
+- Down: **Down**, **S**, or **8**.
 - Select: **Enter** or the center button.
 - Menu/back: **Escape**, **X**, or a soft key.
+- Player: **M** mute, **F** fullscreen, **P** save a 4× PNG screenshot.
 - Controllers: D-pad / left stick to move, A/Cross to jump, B to go back, Start for menu.
 - Touch: classic phone keypad or two-thumb arcade controls.
 

@@ -1,5 +1,5 @@
 (async function () {
-  const map = { ArrowUp:-1, ArrowDown:-2, ArrowLeft:-3, ArrowRight:-4, Enter:-5, ' ':-1, Escape:-7, a:-3, A:-3, d:-4, D:-4, w:-1, W:-1, z:-6, Z:-6, x:-7, X:-7, '*':42, '#':35 };
+  const map = { ArrowUp:-1, ArrowDown:-2, ArrowLeft:-3, ArrowRight:-4, Enter:-5, ' ':-1, Escape:-7, a:-3, A:-3, d:-4, D:-4, w:-1, W:-1, s:-2, S:-2, z:-6, Z:-6, x:-7, X:-7, '*':42, '#':35 };
   for(let i = 0; i < 10; i++) map[String(i)] = 48 + i;
 
   const settings = document.getElementById('settings');
@@ -24,6 +24,8 @@
   const gamepadStatus = document.getElementById('gamepad-status');
   const settingsFeedback = document.getElementById('settings-feedback');
   const saveStatus = document.getElementById('save-status');
+  const backupStatus = document.getElementById('backup-status');
+  const screenshotBtn = document.getElementById('screenshot');
   const jarDialog = document.getElementById('jar-dialog');
   const jarInput = document.getElementById('jar-input');
   const jarChoose = document.getElementById('jar-choose');
@@ -139,12 +141,23 @@
   });
   const { held, down, up, tap, release } = input;
 
+  // Player shortcuts; none of these letters reach the game.
+  const hotkeys = { m: toggleSound, f: toggleFullscreen, p: takeScreenshot };
+
   document.addEventListener('keydown', e => {
     if (e.altKey || e.ctrlKey || e.metaKey) return;
     if (jarDialog.open || !gameJar || settings.open || e.target.closest('select, input, summary, [contenteditable]')) return;
     if (e.target.closest('button') && (e.key === 'Enter' || e.key === ' ')) return;
+    const hotkey = hotkeys[e.key.toLowerCase()];
+    if (hotkey) { e.preventDefault(); if (!e.repeat) hotkey(true); return; }
     if (map[e.key] != null) { e.preventDefault(); down('key:' + e.code, map[e.key]); }
   });
+
+  // Return focus to the game after a toolbar click so Space jumps instead of
+  // pressing the same button again. Keyboard users keep their focus position.
+  function refocusGame(e) {
+    if (gameJar && e.detail > 0) screen.focus({ preventScroll: true });
+  }
 
   document.addEventListener('keyup', e => {
     if (map[e.key] != null && held.has('key:' + e.code)) {
@@ -206,20 +219,21 @@
   function updateSound() {
     const label = BounceAudio.enabled ? 'Sound on' : 'Sound off';
     sound.setAttribute('aria-label', label);
-    sound.title = label;
+    sound.title = label + ' (M)';
     sound.setAttribute('aria-pressed', String(BounceAudio.enabled));
     document.getElementById('sound-checkbox').checked = BounceAudio.enabled;
   }
   updateSound();
 
-  function toggleSound() {
+  function toggleSound(announce = false) {
     BounceAudio.enabled = !BounceAudio.enabled;
     localStorage.setItem('bounce:sound', BounceAudio.enabled ? 'on' : 'off');
     if (!BounceAudio.enabled) BounceAudio.context?.suspend(); else BounceAudio.unlock();
     updateSound();
+    if (announce) notify(BounceAudio.enabled ? 'Sound on' : 'Sound off');
   }
-  sound.addEventListener('click', toggleSound);
-  document.getElementById('sound-checkbox').addEventListener('change', toggleSound);
+  sound.addEventListener('click', e => { toggleSound(); refocusGame(e); });
+  document.getElementById('sound-checkbox').addEventListener('change', () => toggleSound());
 
   if (volumeRange && volumeVal) {
     const volPercent = Math.round((BounceAudio.volume ?? 1) * 100);
@@ -255,7 +269,7 @@
   }
 
   // Fullscreen
-  fullscreen.addEventListener('click', async () => {
+  async function toggleFullscreen() {
     try {
       if (document.fullscreenElement) await document.exitFullscreen();
       else if (app.requestFullscreen) await app.requestFullscreen();
@@ -263,14 +277,48 @@
     } catch {
       notify('Fullscreen is unavailable in this browser.', true);
     }
-  });
+  }
+  fullscreen.addEventListener('click', e => { toggleFullscreen(); refocusGame(e); });
 
   document.addEventListener('fullscreenchange', () => {
     const label = document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen';
     fullscreen.setAttribute('aria-label', label);
-    fullscreen.title = label;
+    fullscreen.title = label + ' (F)';
     scheduleFit();
   });
+
+  // Screenshot: the 128 × 128 screen, upscaled 4× with crisp pixels.
+  function download(blob, name) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function takeScreenshot() {
+    const source = screen.querySelector('canvas');
+    if (!gameJar || !source) { notify('Start the game to take a screenshot.', true); return; }
+    try {
+      const shot = document.createElement('canvas');
+      shot.width = source.width * 4;
+      shot.height = source.height * 4;
+      const ctx = shot.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(source, 0, 0, shot.width, shot.height);
+      const d = new Date(), pad = n => String(n).padStart(2, '0');
+      const stamp = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+      shot.toBlob(blob => {
+        if (!blob) { notify('Could not save the screenshot.', true); return; }
+        download(blob, `bounce-${stamp}.png`);
+        notify('Screenshot saved.');
+      }, 'image/png');
+    } catch {
+      notify('Could not save the screenshot.', true);
+    }
+  }
+  screenshotBtn.addEventListener('click', e => { takeScreenshot(); refocusGame(e); });
 
   // Settings modal
   document.getElementById('help').addEventListener('click', () => {
@@ -278,6 +326,7 @@
     document.getElementById('return-to-game').textContent = settingsWasPlaying ? 'Resume game' : 'Back to player';
     settingsFeedback.hidden = true;
     document.getElementById('toast').hidden = true;
+    updateBackupStatus();
     pauseGame();
     updatePauseState(settingsWasPlaying);
     settings.showModal();
@@ -389,14 +438,10 @@
   // Save Management (Export, Import, Reset)
   document.getElementById('export-save-btn')?.addEventListener('click', () => {
     BouncePlatform.save(() => {
+      localStorage.setItem('bounce:last-backup', String(Date.now()));
       const json = BouncePlatform.exportSave();
-      const blob = new Blob([json], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `nokia-bounce-save-${new Date().toISOString().slice(0, 10)}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
+      download(new Blob([json], { type: 'application/json' }), `nokia-bounce-save-${new Date().toISOString().slice(0, 10)}.json`);
+      updateBackupStatus();
       notify('Backup downloaded.');
     });
   });
@@ -546,7 +591,15 @@
       updateSaveStatus();
     });
   }
+  // Browser storage can be cleared, so nudge players with progress to export.
+  function updateBackupStatus() {
+    const time = Number(localStorage.getItem('bounce:last-backup'));
+    const days = time ? Math.floor((Date.now() - time) / 86400000) : Infinity;
+    backupStatus.textContent = !time ? 'Not backed up yet' : days < 1 ? 'Backed up today' : days === 1 ? 'Backed up yesterday' : `Backed up ${days} days ago`;
+    backupStatus.dataset.stale = String(days >= 14 && Boolean(localStorage.getItem('Nokia/Bounce/bounceRMS/3')));
+  }
   updateSaveStatus();
+  updateBackupStatus();
   setInterval(save, 5000);
   window.addEventListener('pagehide', save);
 
@@ -568,6 +621,7 @@
     document.getElementById('jar-name').textContent = name;
     document.getElementById('jar-persistence').textContent = remembered ? 'Remembered in this browser.' : 'Session only.';
     BounceAudio.unlock();
+    screenshotBtn.disabled = false;
     jarDialog.close();
     screen.querySelector('.loading').textContent = 'Loading game…';
     status.textContent = 'Loading game…';
@@ -577,7 +631,30 @@
   jarChoose.addEventListener('click', () => jarInput.click());
   jarDialog.addEventListener('cancel', event => event.preventDefault());
   jarInput.addEventListener('change', async () => {
-    const file = jarInput.files?.[0];
+    await loadJarFile(jarInput.files?.[0]);
+    jarInput.value = '';
+  });
+
+  // Drag a JAR onto the load dialog. Stray drops never open or download the file.
+  let dragTimer;
+  const draggingFiles = e => [...(e.dataTransfer?.types || [])].includes('Files');
+  window.addEventListener('dragover', e => {
+    if (!draggingFiles(e)) return;
+    e.preventDefault();
+    const accepting = jarDialog.open && !loadingJar;
+    e.dataTransfer.dropEffect = accepting ? 'copy' : 'none';
+    jarDialog.classList.toggle('is-dragging', accepting);
+    clearTimeout(dragTimer);
+    dragTimer = setTimeout(() => jarDialog.classList.remove('is-dragging'), 150);
+  });
+  window.addEventListener('drop', e => {
+    if (!draggingFiles(e)) return;
+    e.preventDefault();
+    jarDialog.classList.remove('is-dragging');
+    if (jarDialog.open) loadJarFile(e.dataTransfer.files[0]);
+  });
+
+  async function loadJarFile(file) {
     if (!file || loadingJar) return;
     jarBusy(true);
     jarMessage('Checking JAR…');
@@ -592,8 +669,8 @@
       if (jarRemember.checked && !remembered) notify('Browser storage is unavailable. Select your JAR again after refreshing.', true);
     } catch (error) {
       jarMessage(error.message || 'Could not read that file. Choose another JAR.', true);
-    } finally { jarBusy(false); jarInput.value = ''; }
-  });
+    } finally { jarBusy(false); }
+  }
   jarDialog.showModal();
   jarBusy(true);
   let remembered;

@@ -40,11 +40,14 @@
     <header class="masthead">
       <div class="identity"><h1 class="wordmark"><span class="ball-mark" aria-hidden="true"></span>bounce</h1></div>
       <nav class="toolbar" aria-label="Player settings">
-        <button class="tool-button" id="sound" aria-label="Sound on" aria-pressed="true" title="Sound on">
+        <button class="tool-button" id="sound" aria-label="Sound on" aria-pressed="true" aria-keyshortcuts="M" title="Sound on (M)">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="sound-waves" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/><path class="sound-muted" d="m16 9 6 6m0-6-6 6"/></svg><span>Sound</span>
         </button>
-        <button class="tool-button" id="fullscreen" aria-label="Enter fullscreen" title="Enter fullscreen">
+        <button class="tool-button" id="fullscreen" aria-label="Enter fullscreen" aria-keyshortcuts="F" title="Enter fullscreen (F)">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path class="expand-icon" d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/><path class="collapse-icon" d="M3 8h5V3m8 0v5h5M8 21v-5H3m18 0h-5v5"/></svg><span>Fullscreen</span>
+        </button>
+        <button class="tool-button" id="screenshot" aria-label="Save screenshot" aria-keyshortcuts="P" title="Save screenshot (P)" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4Z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Screenshot</span>
         </button>
         <button class="tool-button" id="theme-toggle" aria-label="Toggle dark theme" title="Toggle dark theme">
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -186,7 +189,12 @@
             <div><dt>Jump</dt><dd><kbd>↑</kbd><span>or</span><kbd>Space</kbd></dd></div>
             <div><dt>Select</dt><dd><kbd>Enter</kbd></dd></div>
             <div><dt>Menu / pause</dt><dd><kbd>Esc</kbd></dd></div>
+            <div><dt>Mute / fullscreen</dt><dd><kbd>M</kbd><kbd>F</kbd></dd></div>
+            <div><dt>Screenshot</dt><dd><kbd>P</kbd></dd></div>
           </dl>
+        </fieldset>
+        <fieldset class="settings-section">
+          <legend>Touch &amp; controller</legend>
           <div class="setting-row">
             <span class="setting-name">Gamepad</span>
             <span class="status-pill" id="gamepad-status">Disconnected</span>
@@ -285,7 +293,7 @@
         </fieldset>
         </section>
         <section class="settings-panel" id="panel-saves" role="tabpanel" aria-labelledby="tab-saves" tabindex="0" hidden>
-        <div class="save-summary"><span class="save-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h12l4 4v14H3V3Z"/><path d="M7 3v6h10V3M7 21v-8h10v8"/></svg></span><div><strong>Saved progress</strong><p id="save-status">Saves automatically during play</p></div></div>
+        <div class="save-summary"><span class="save-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h12l4 4v14H3V3Z"/><path d="M7 3v6h10V3M7 21v-8h10v8"/></svg></span><div><strong>Saved progress</strong><p id="save-status">Saves automatically during play</p><p id="backup-status" class="backup-status"></p></div></div>
         <fieldset class="settings-section">
           <legend>Backup</legend>
           <p class="section-desc">Importing replaces progress and settings.</p>
@@ -328,8 +336,9 @@
     </dialog>
     <dialog id="jar-dialog" class="jar-dialog" aria-labelledby="jar-title" aria-describedby="jar-description">
       <h2 id="jar-title">Load game</h2>
-      <p id="jar-description">Select your Nokia Bounce 1.24 JAR.</p>
+      <p id="jar-description">Select your Nokia Bounce 1.24 JAR, or drop it here.</p>
       <button type="button" id="jar-choose" class="jar-choose" autofocus>Choose JAR file</button>
+      <p class="jar-drop-hint" aria-hidden="true">Drop to load</p>
       <input type="file" id="jar-input" accept=".jar,application/java-archive,application/x-java-archive" hidden>
       <label class="jar-remember"><input type="checkbox" id="jar-remember" checked>Remember on this device</label>
       <p id="jar-feedback" class="jar-feedback" role="status" aria-live="polite" hidden></p>

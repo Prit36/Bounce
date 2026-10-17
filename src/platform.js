@@ -80,7 +80,7 @@
             if (!preferences[k].includes(v)) throw new Error('The backup contains invalid preferences.');
           } else if (k === 'bounce:volume') {
             if (!v.trim() || !Number.isFinite(Number(v)) || Number(v) < 0 || Number(v) > 1) throw new Error('The backup contains an invalid volume.');
-          } else if (k === 'bounce:last-save' || k === 'freeSpace') {
+          } else if (k === 'bounce:last-save' || k === 'bounce:last-backup' || k === 'freeSpace') {
             if (!/^\d+$/.test(v) || !Number.isSafeInteger(Number(v))) throw new Error('The backup contains invalid save metadata.');
           } else throw new Error('This file contains data that does not belong to Bounce.');
         }
